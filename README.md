@@ -8,6 +8,10 @@ sudo docker build -t versions-replacer .
 sudo docker run --rm versions-replacer --help
 sudo docker run -v /files:/files --rm versions-replacer /files/txtfile /files/ymlfile
 ```
+Or with helper script:
+```
+./converter-docker.sh /path/to/txt/file /path/to/yaml/file
+```
 
 > Without docker (requires Java 11 or higher):
 > ```
