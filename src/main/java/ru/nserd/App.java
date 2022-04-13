@@ -47,6 +47,7 @@ public class App {
         sb.append("Usage: java -jar versions-replacer.jar <txt-file> <yml-file>\n");
         sb.append("\n");
         sb.append("Arguments:\n");
+        sb.append("\n");
         sb.append("  txt-file    File with content copied from update task\n");
         sb.append("  yml-file    YAML file with versions\n");
 
