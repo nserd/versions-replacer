@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 public class App {
     private static final List<Component> componentsList = new ArrayList<>();
+    
     public static void main(String[] args) throws IOException {
         argHandler(args);
 
