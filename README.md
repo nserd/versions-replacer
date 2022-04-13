@@ -10,7 +10,7 @@ sudo docker run -v /files:/files --rm versions-replacer /files/txtfile /files/ym
 ```
 Or with helper script:
 ```
-./replacer-docker.sh /path/to/txt/file /path/to/yaml/file
+bash replacer-docker.sh /path/to/txt/file /path/to/yaml/file
 ```
 
 > Without docker (requires Java 11 or higher):
