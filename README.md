@@ -15,6 +15,6 @@ Or with helper script:
 
 > Without docker (requires Java 11 or higher):
 > ```
-> java -jar artifacts/versions-replacer-1.0.jar --help
-> java -jar artifacts/versions-replacer-1.0.jar /path/to/txt/file /path/to/yaml/file
+> java -jar artifacts/versions-replacer.jar --help
+> java -jar artifacts/versions-replacer.jar /path/to/txt/file /path/to/yaml/file
 > ```
