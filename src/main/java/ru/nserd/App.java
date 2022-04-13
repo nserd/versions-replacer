@@ -24,19 +24,12 @@ public class App {
     }
 
     private static void argHandler(String[] args) {
-        if (args.length == 0) {
+        if (args.length == 0 || (args.length == 1 && ! args[0].equals("--help"))) {
             System.err.println("Requred arguments not found. Use --help.");
             System.exit(-1);
-        }
-
-        if (args.length == 1) {
-            if (args[0].equals("--help")) {
-                printHelp();
-                System.exit(0);
-            } else {
-                System.err.println("Requred arguments not found. Use --help.");
-                System.exit(-1);
-            }
+        } else if (args[0].equals("--help")) {
+            printHelp();
+            System.exit(0);
         }
     }
 
