@@ -82,7 +82,7 @@ public class App {
             output.add("    component_branch: " + comp.branch);
         }
 
-        while (hasIndent(input.get(index), 4)) {
+        while (input.get(index).startsWith(" ".repeat(4))) {
             if (input.get(index).contains("component_branch")) {
                 output.add(comp.branch == null ? input.get(index) : "    component_branch: " + comp.branch);
             } else if (input.get(index).contains("component_tag")) {
@@ -95,7 +95,7 @@ public class App {
     }
 
     private static boolean haveBranch(List<String> list, int index) {
-        while (hasIndent(list.get(index), 4)) {
+        while (list.get(index).startsWith(" ".repeat(4))) {
             if (list.get(index).contains("component_branch")) {
                 return true;
             }
@@ -103,16 +103,6 @@ public class App {
         }
 
         return false;
-    }
-
-    private static boolean hasIndent (String str, int numbOfSpaces) {
-        for (int i = 0; i < numbOfSpaces; i++) {
-            if (str.charAt(i) != ' ') {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     private static void parseComponentsFromFile(Path srcFile) throws IOException {
