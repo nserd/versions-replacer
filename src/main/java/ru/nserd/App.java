@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class App {
+    private static boolean DEBUG = false;
     private static final List<Component> componentsList = new ArrayList<>();
     
     public static void main(String[] args) throws IOException {
@@ -30,6 +31,8 @@ public class App {
         } else if (args[0].equals("--help")) {
             printHelp();
             System.exit(0);
+        } else if (args.length == 3 && args[2].equals("--debug")) {
+            DEBUG = true;
         }
     }
 
@@ -52,20 +55,79 @@ public class App {
         List<String> lines = Files.readAllLines(versionsFile, StandardCharsets.UTF_8);
         List<String> newLines = new ArrayList<>();
 
+        if (DEBUG) {
+            System.out.println("=======================================");
+            System.out.println("           Comoponents list            ");
+            System.out.println("=======================================");
+            componentsList.forEach(System.out::println);
+            System.out.println();
+            System.out.println("=======================================");
+            System.out.println("        Replace component data         ");
+            System.out.println("=======================================");
+        }
+        
         for (int i = 0; i < lines.size(); i++) {
-            for (Component comp : componentsList) {
-                if (lines.get(i).contains(comp.name + ':')) {
-                    newLines.add(lines.get(i++));
-                    newLines.add(lines.get(i++)); // vars:
-
-                    i = replaceComponentData(comp, lines, newLines, i);
-                } 
+            int indexAfterReplace = searchAndReplaceComponent(i, lines, newLines);
+            
+            if (indexAfterReplace == i) {
+                newLines.add(lines.get(i));
+            } else {
+                i = indexAfterReplace;
             }
-
-            newLines.add(lines.get(i));
         }
 
+        addNewComponents(newLines);
         writeToFile(newLines, versionsFile);
+    }
+
+    private static int searchAndReplaceComponent(int i, List<String> lines, List<String> newLines) {
+        for (int j = 0; j < componentsList.size(); j++) {
+            Component comp = componentsList.get(j);
+
+            if (lines.get(i).contains(comp.name + ':')) {
+                if (DEBUG) {
+                    System.out.println(i + ": " + lines.get(i) + " (FOUND " + comp.name + ")");
+                }
+                
+                newLines.add(lines.get(i++));
+                newLines.add(lines.get(i++)); // vars:
+
+                i = replaceComponentData(comp, lines, newLines, i);
+
+                if (DEBUG) {
+                    System.out.println("Return index: " + i);
+                }
+                
+                componentsList.remove(j);
+                break; 
+            } 
+        }
+
+        return i;
+    }
+
+    private static void addNewComponents(List<String> output) {
+        if (!componentsList.isEmpty()) {
+            if (DEBUG) {
+                System.out.println();
+                System.out.println("=======================================");
+                System.out.println("          Add new components           ");
+                System.out.println("=======================================");
+            }
+
+            for (Component comp : componentsList) {
+                output.add(comp.name + ":");
+                output.add("  vars:");
+                if (comp.branch != null) {
+                    output.add("    component_branch: " + comp.branch);
+                }
+                output.add("    component_tag: " + comp.trunk);
+
+                if (DEBUG) {
+                    System.out.println(comp);
+                }
+            }
+        }
     }
 
     private static void writeToFile(List<String> lines, Path file) throws IOException {
@@ -78,11 +140,11 @@ public class App {
     }
 
     private static int replaceComponentData(Component comp, List <String> input, List <String> output, int index) {
-        if (comp.branch != null && ! haveBranch(input, index)) {
+        if (comp.branch != null && !haveBranch(input, index)) {
             output.add("    component_branch: " + comp.branch);
         }
 
-        while (input.get(index).startsWith(" ".repeat(4))) {
+        while (index < input.size() && input.get(index).startsWith(" ".repeat(4))) {
             if (input.get(index).contains("component_branch")) {
                 output.add(comp.branch == null ? input.get(index) : "    component_branch: " + comp.branch);
             } else if (input.get(index).contains("component_tag")) {
@@ -91,7 +153,7 @@ public class App {
             index++;
         }
 
-        return index;
+        return index - 1;
     }
 
     private static boolean haveBranch(List<String> list, int index) {
@@ -114,43 +176,71 @@ public class App {
             System.exit(-1);
         }
 
-        int iterator = 0;
-        while (iterator < wordsArray.length) {
-            iterator = parseComponent(wordsArray, iterator);
+        if (DEBUG) {
+            System.out.println("=======================================");
+            System.out.println("             Parsed words              ");
+            System.out.println("=======================================");
+            
+            for (int i = 0; i < wordsArray.length; i++) {
+                System.out.println(i + ": " + wordsArray[i]);
+            }
+            System.out.println();
         }
+
+        int index = 0;
+        while (index < wordsArray.length) {
+            index = parseComponent(wordsArray, index);
+        }
+
+        botkeeperFix();
     }
 
-    private static int parseComponent(String[] words, int iterator) {
-        String name = words[iterator++];
+    private static int parseComponent(String[] words, int index) {
+        String name = words[index++];
 
         String branch = new String();
         String trunk = new String();
 
-        if (words[iterator].equals("component_branch")) {
-            branch = words[iterator + 1];
-            iterator += 2;
+        if (words[index].equals("component_branch")) {
+            branch = words[index + 1];
+            index += 2;
         } 
 
-        if (words[iterator].equals("component_tag")) {
-            trunk = words[iterator + 1];
-            iterator += 2;
+        if (words[index].equals("component_tag")) {
+            trunk = words[index + 1];
+            index += 2;
 
-            if (branch.length() == 0 && words[iterator].equals("component_branch")) {
-                branch = words[iterator + 1];
-                iterator += 2;
+            if (index > words.length && branch.length() == 0 && words[index].equals("component_branch")) {
+                branch = words[index + 1];
+                index += 2;
             }
         } else {
-            System.err.println("Incorrect list format (" + words[iterator] + ")");
+            System.err.println("Incorrect list format (" + words[index] + ")");
             System.exit(-1);
         }
 
         componentsList.add(branch.length() > 0 ? new Component(name, branch, trunk) : new Component(name, trunk));
 
-        return iterator;
+        return index;
+    }
+
+    private static void botkeeperFix() {
+        boolean haveBotkeeperServer = componentsList.stream().anyMatch(c -> c.name.equals("botkeeper-server"));
+        boolean haveBotkeeperFront = componentsList.stream().anyMatch(c -> c.name.equals("botkeeper-front"));
+
+        if(haveBotkeeperServer && !haveBotkeeperFront) {
+            for (int i = 0; i < componentsList.size(); i++) {
+                if (componentsList.get(i).name.equals("botkeeper-server")) {
+                    componentsList.add(new Component("botkeeper-front", componentsList.get(i).branch, componentsList.get(i).trunk));
+                    break;
+                }
+            }
+        }
     }
 
     private static List<String> removeExtraChars(List<String> list) {
         return list.stream()
+            .map(s -> s.replaceAll("telephony-health-check", "telephony_healthcheck")) 
             .map(s -> s.replaceAll("\u00A0", ""))   // Remove no-break space symbol
             .map(s -> s.replaceAll("\u0441", "c"))  // Replacing a cyrillic character with a latin one
             .map(s -> s.strip())
