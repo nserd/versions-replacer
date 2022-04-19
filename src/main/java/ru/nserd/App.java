@@ -41,7 +41,7 @@ public class App {
 
         sb.append("\u001B[1mVersions Replacer\u001B[0m\n");
         sb.append("\n");
-        sb.append("Usage: java -jar versions-replacer.jar <txt-file> <yml-file>\n");
+        sb.append("Usage: java -jar versions-replacer.jar <txt-file> <yml-file> [--debug]\n");
         sb.append("\n");
         sb.append("Arguments:\n");
         sb.append("\n");
@@ -228,7 +228,7 @@ public class App {
         boolean haveBotkeeperServer = componentsList.stream().anyMatch(c -> c.name.equals("botkeeper-server"));
         boolean haveBotkeeperFront = componentsList.stream().anyMatch(c -> c.name.equals("botkeeper-front"));
 
-        if(haveBotkeeperServer && !haveBotkeeperFront) {
+        if (haveBotkeeperServer && !haveBotkeeperFront) {
             for (int i = 0; i < componentsList.size(); i++) {
                 if (componentsList.get(i).name.equals("botkeeper-server")) {
                     componentsList.add(new Component("botkeeper-front", componentsList.get(i).branch, componentsList.get(i).trunk));
@@ -238,7 +238,7 @@ public class App {
         }
     }
 
-    private static List<String> removeExtraChars(List<String> list) {
+    private static List<String> listCleanup (List<String> list) {
         return list.stream()
             .map(s -> s.replaceAll("telephony-health-check", "telephony_healthcheck")) 
             .map(s -> s.replaceAll("\u00A0", ""))   // Remove no-break space symbol
