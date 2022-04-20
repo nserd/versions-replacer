@@ -6,7 +6,7 @@ sudo docker build -t versions-replacer .
 # Run
 ```
 sudo docker run --rm versions-replacer --help
-sudo docker run -v /files:/files --rm versions-replacer /files/txtfile /files/ymlfile
+sudo docker run -v /files:/files --rm versions-replacer /files/txtfile /files/ymlfile [--debug]
 ```
 Or with helper script:
 ```
