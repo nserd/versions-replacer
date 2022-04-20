@@ -16,5 +16,5 @@ bash replacer-docker.sh /path/to/txt/file /path/to/yaml/file
 > Without docker (requires Java 11 or higher):
 > ```
 > java -jar artifacts/versions-replacer.jar --help
-> java -jar artifacts/versions-replacer.jar /path/to/txt/file /path/to/yaml/file
+> java -jar artifacts/versions-replacer.jar /path/to/txt/file /path/to/yaml/file [--debug]
 > ```
